@@ -23,11 +23,12 @@ clasificaTemperatura n
     | n < 1 = "frio extremo"
     | n <= 15 = "frio"
     | n <= 25 = "templado"
-    | n <= 35 = "Calido"
-    | otherwise = "Calor extremo"
+    | n <= 35 = "calido"
+    | otherwise = "calor extremo"
 
 -- 6
 intercala :: a -> [a] -> [a]
+intercala _ [] = []
 intercala _ [a] = [a]
 intercala y (x:xs) = [x] ++ [y] ++ intercala y xs
 
