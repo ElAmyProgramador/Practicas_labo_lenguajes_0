@@ -41,6 +41,30 @@ ASA : nat                      { Num $1 }
 --   * operadores estrictamente binarios: expt y eq;
 --   * operadores unarios: not, add1, sub1, zero?.
 
+    | '(' '+' l ')'             { Suma $3 }
+    | '(' '-' l ')'             { Sub $3 }
+    | '(' '*' l ')'             { Mult $3 }
+    | '(' '/' l ')'             { Div $3 }
+    | '(' "and" l ')'           { And $3 }
+    | '(' "or" l ')'            { Or $3 }
+    | '(' "not" ASA ')'         { Not $3 }
+    | '(' "add1" ASA ')'        { Add1 $3 }
+    | '(' "sub1" ASA ')'        { Sub1 $3 }
+    | '(' "zero?" ASA ')'       { Zero? $3 }
+    | '(' "expt" ASA ASA ')'    { Expt $3 $4 }
+    | '(' '<' l ')'             { Menor $3 }
+    | '(' '>' l ')'             { Mayor $3 }
+    | '(' "<=" l ')'            { MenorIgual $3 }
+    | '(' ">=" l ')'            { MayorIgual $3 }
+    | '(' "eq" ASA ASA ')'      { Eq $3 $4 }
+    | '('                       { PA $1 }
+    | ')'                       { PC $1 }
+    ;
+
+l : ASA ASA     { [$1, $2] }
+  | ASA l       { $1 : $2 }
+  ;
+
 -- RETO 3:
 -- Agrega un no terminal para representar dos o mas argumentos.
 -- El resultado debe ser una lista de ASA.
@@ -70,5 +94,4 @@ data ASA
   | ZeroP ASA
   deriving (Eq, Show)
 }
-
 
