@@ -4,17 +4,21 @@ module Lexer (Token(..), lexer) where
 import Data.Char (isSpace)
 }
 
-%wrapper "basic"
+-- Esta wea hace que el Scanner sea de tipo Scanner :: String -> [Token] (creo es más bien una clase de tipo)
+%wrapper "basic" -- Seria interesante usar la API en su forma de más bajo nivel
 
+-- Macros para los tokens
 $white = [\x20\x09\x0A\x0D\x0C\x0B]
 $digit = 0-9
 $nonzero = 1-9
 
+-- Los naturales hijos de su inductiva madre ojalá nunca hubiesen existido -_-
 @nat = 0 | $nonzero $digit*
 
+-- Definición de tokens para comprar nft's :3 (por medio del Scanner)
 tokens :-
 
-  $white+               ;
+  $white+               ; -- Esto es una regla que hace match dependiendo de los espacios, si es $white* al parecer tambien cuenta los no espacios
 
   -- Tokens ya presentes en MINILISP01
   \(                    { \_ -> TokenPA }
@@ -47,13 +51,16 @@ tokens :-
   eq                    { \_ -> TokenEq }
   add1                  { \_ -> TokenAdd1 }
   sub1                  { \_ -> TokenSub1 }
-  zero\?                { \_ -> TokenZeroP }
+  zero\?                { \_ -> TokenZeroP } -- Aunque usa el white encoding UTF-8, el '?' debe ponerse como '\?'
 
+  -- Por alguna razón esto debe ir al final, creo es por el 
   .                     { \s -> error ("Lexical error: caracter no reconocido = "
                                       ++ show s
                                       ++ " | codepoints = "
                                       ++ show (map fromEnum s))
   }
+
+-- Hecho por el dato alex := [ @code ] [ wrapper ] [ encoding ] { macrodef } @id ':-' { rule } [ @code ]
 
 {
 data Token
