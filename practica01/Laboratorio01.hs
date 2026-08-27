@@ -44,4 +44,3 @@ evalua (Lit a) = a
 evalua (Suma a b) = evalua a + evalua b
 evalua (Producto a b) = evalua a * evalua b
 -- Como tal Num tiene estancia Show y Eq, pero asi se puede ver cada Literal como elemento
-
