@@ -1,3 +1,6 @@
+-- Reto 2 "Amy" y Estefany
+-- Reto 3 "Amy"
+
 {
 module Grammars where
 

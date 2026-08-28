@@ -3,7 +3,7 @@
 {-# OPTIONS_GHC -fno-warn-unused-binds #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 {-# LANGUAGE CPP #-}
-{-# LINE 1 "Lexer.x" #-}
+{-# LINE 3 "Lexer.x" #-}
 module Lexer (Token(..), lexer) where
 
 import Data.Char (isSpace)
@@ -3239,7 +3239,7 @@ alexRightContext IBOX(sc) user__ _ _ input__ =
         -- match when checking the right context, just
         -- the first match will do.
 #endif
-{-# LINE 65 "Lexer.x" #-}
+{-# LINE 67 "Lexer.x" #-}
 data Token
   = TokenNum Int
   | TokenBool Bool
