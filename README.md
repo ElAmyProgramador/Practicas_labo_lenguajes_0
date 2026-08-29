@@ -19,10 +19,10 @@ Todo compilado del código fuente
 ### Bibliotecas y módulos
 
 Se usará las bibliotecas y módulos pedidos durante el laboratorio, son instalados mediante
-'''
-cabal install alex happy
-cabal install --lib QuickCheck
-'''
+```bash
+$ cabal install alex happy
+$ cabal install --lib QuickCheck
+```
 
 Las versiones son:
 - alex 3.5.4.2
@@ -30,25 +30,25 @@ Las versiones son:
 - QuickCheck 2.18.0.0
 
 QuickCheck fue instalado de manera global para todo archivo en Haskell, si se instala para proyectos con cabal, en el .cabal escribelo como dependencia del proyecto en desarrollo
-'''
+```cabal
 executable <NOMBRE_PROGRAMA>
-  main-is:             Main.hs
-  build-depends:       base >=4.14,
-                       QuickCheck
-'''
+    main-is             Main.hs
+    build-depends       base >= 4.14,
+                        QuickCheck
+```
 
 Así también tendrias una version estable de Prelude :D
 
 #### Módulos ocultos
 
 Algunos modulos que por lo general vienen en el paquete ghc de cualquier distro como Data.Array suelen instalarse de forma global, pero GHCup los aisla para que nada explote, si quieres pasar paquetes a globales simplemente corre la línea
-'''
-cabal install --lib array
-'''
+```bash
+$ cabal install --lib array
+```
 
 De esta forma se hará visible para todo el PATH (o scope o como se llame), pero si no quieres, puedes indicarle a ghc que use la libreria de la forma
-'''
-ghc -package array <ARCHIVO.hs>
-'''
+```bash
+$ ghc -package array <ARCHIVO.hs>
+```
 
 *Esta libreria se usa a la hora de que alex genere el analizador léxico con "saltos" eficientes, similar a la biblioteca Vector de C++*
