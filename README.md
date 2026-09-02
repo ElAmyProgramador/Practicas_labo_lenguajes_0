@@ -7,24 +7,26 @@ Nombre de los integrantes
 - Rosales Guillen Emilio Alexeiv "Amy"
 
 ## GHCup
-**Para evitar problemas en distros rolling release como Arch linux u openSUSE Tumbleweed, se usará [GHCup](https://www.haskell.org/ghcup/), también se manejará todo lo de cabal (bibliotecas de hackage), stack (gestión y desarrollo de proyectos)**
+**Para evitar problemas en distros rolling release como Arch linux u openSUSE Tumbleweed, se usará [GHCup](https://www.haskell.org/ghcup/), también se manejará todo lo de cabal (bibliotecas de hackage), stack (gestión y desarrollo de proyectos).**
 
 - La versión de Haskell a usar es ghc-9.10.3
 - La versión de cabal es 3.16.1.0
 - La versión de stack es 3.11.1
 - La versión de ghci (el intérprete de Haskell) es 9.10.3
 
-Todo compilado del código fuente
+Todo compilado desde el código fuente
 
 ### Bibliotecas y módulos
 
-Se usará las bibliotecas y módulos pedidos durante el laboratorio, son instalados mediante
+Se usarán las bibliotecas/paquetes y módulos pedidos durante el laboratorio, esto son instalados mediante:
 ```bash
 $ cabal install alex happy
 $ cabal install --lib QuickCheck
 ```
 
-Las versiones son:
+**(Esta lista se irá actualizando constantemente)**
+
+Las versiones instladad a la fecha 2026-08-30 son:
 - alex 3.5.4.2
 - happy 2.2
 - QuickCheck 2.18.0.0
@@ -37,11 +39,11 @@ executable <NOMBRE_PROGRAMA>
                         QuickCheck
 ```
 
-Así también tendrias una version estable de Prelude :D
+Así también tendrias una version estable de Prelude para ese proyecto :D
 
 #### Módulos ocultos
 
-Algunos modulos que por lo general vienen en el paquete ghc de cualquier distro como Data.Array suelen instalarse de forma global, pero GHCup los aisla para que nada explote, si quieres pasar paquetes a globales simplemente corre la línea
+Algunos modulos y paquetes que por lo general vienen en el paquete ghc de cualquier distro como Data.Array suelen instalarse de forma global, pero GHCup los aisla para que nada explote, si quieres pasar paquetes a globales simplemente corre la línea
 ```bash
 $ cabal install --lib array
 ```
