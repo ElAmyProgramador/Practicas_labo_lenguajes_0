@@ -13,37 +13,44 @@ $letter = [A-Za-z_]
 $idrest = [A-Za-z0-9_]
 
 @nat = 0 | $nonzero $digit*
+@id = $letter $idrest*
+
+
 
 tokens :-
 
   $white+               ;
 
   -- Sintaxis heredada del laboratorio 02
-  \(                    { \_ -> TokenPA }
-  \)                    { \_ -> TokenPC }
-  \+                    { \_ -> TokenSuma }
-  \-                    { \_ -> TokenResta }
-  \*                    { \_ -> TokenMul }
-  \/                    { \_ -> TokenDiv }
-  "<="                  { \_ -> TokenLE }
-  ">="                  { \_ -> TokenGE }
-  \<                    { \_ -> TokenLT }
-  \>                    { \_ -> TokenGT }
-  and                   { \_ -> TokenAnd }
-  or                    { \_ -> TokenOr }
-  not                   { \_ -> TokenNot }
-  add1                  { \_ -> TokenAdd1 }
-  sub1                  { \_ -> TokenSub1 }
-  "zero?"               { \_ -> TokenZeroP }
-  expt                  { \_ -> TokenExpt }
-  eq                    { \_ -> TokenEq }
+    let                  { \_ -> TokenLet}      
+    "let*"                { \_ -> TokenLetStar}
+    \(                    { \_ -> TokenPA }
+    \)                    { \_ -> TokenPC }
+    \+                    { \_ -> TokenSuma }
+    \-                    { \_ -> TokenResta }
+    \*                    { \_ -> TokenMul }
+    \/                    { \_ -> TokenDiv }
+    "<="                  { \_ -> TokenLE }
+    ">="                  { \_ -> TokenGE }
+    \<                    { \_ -> TokenLT }
+    \>                    { \_ -> TokenGT }
+    and                   { \_ -> TokenAnd }
+    or                    { \_ -> TokenOr }
+    not                   { \_ -> TokenNot }
+    add1                  { \_ -> TokenAdd1 }
+    sub1                  { \_ -> TokenSub1 }
+    "zero?"               { \_ -> TokenZeroP }
+    expt                  { \_ -> TokenExpt }
+    eq                    { \_ -> TokenEq }
 
-  "#t"                  { \_ -> TokenBool True }
-  "#f"                  { \_ -> TokenBool False }
+    "#t"                  { \_ -> TokenBool True }
+    "#f"                  { \_ -> TokenBool False }
 
-  0$digit+              { \s -> error ("Lexical error: natural con cero inicial = "
+
+    0$digit+              { \s -> error ("Lexical error: natural con cero inicial = "
                                       ++ show s) }
-  @nat                  { \s -> TokenNum (read s) }
+    @nat                  { \s -> TokenNum (read s) }
+    @id                   { \s -> TokenId (read s)} 
 
   -- RETO 1
   -- Agrega, en el orden correcto, las reglas para:
@@ -56,7 +63,9 @@ tokens :-
 
 {
 data Token
-  = TokenId String
+  = TokenLet 
+  | TokenLetStar 
+  | TokenId String
   | TokenNum Int
   | TokenBool Bool
   | TokenSuma
@@ -75,8 +84,6 @@ data Token
   | TokenLE
   | TokenGE
   | TokenEq
-  | TokenLet
-  | TokenLetStar
   | TokenPA
   | TokenPC
   deriving (Eq, Show)
