@@ -1,3 +1,5 @@
+-- Reto 2: "Amy"
+
 {
 module Grammars where
 
@@ -9,50 +11,53 @@ import Lexer (Token(..))
 %error { parseError }
 
 %token
-      var             { TokenId $$ }
-      nat             { TokenNum $$ }
-      bool            { TokenBool $$ }
-      '+'             { TokenSuma }
-      '-'             { TokenResta }
-      '*'             { TokenMul }
-      '/'             { TokenDiv }
-      "and"           { TokenAnd }
-      "or"            { TokenOr }
-      "not"           { TokenNot }
-      "add1"          { TokenAdd1 }
-      "sub1"          { TokenSub1 }
-      "zero?"         { TokenZeroP }
-      "expt"          { TokenExpt }
-      '<'             { TokenLT }
-      '>'             { TokenGT }
-      "<="            { TokenLE }
-      ">="            { TokenGE }
-      "eq"            { TokenEq }
-      "let"           { TokenLet }
-      "let*"          { TokenLetStar }
-      '('             { TokenPA }
-      ')'             { TokenPC }
+    var             { TokenId $$ }
+    nat             { TokenNum $$ }
+    bool            { TokenBool $$ }
+    '+'             { TokenSuma }
+    '-'             { TokenResta }
+    '*'             { TokenMul }
+    '/'             { TokenDiv }
+    "and"           { TokenAnd }
+    "or"            { TokenOr }
+    "not"           { TokenNot }
+    "add1"          { TokenAdd1 }
+    "sub1"          { TokenSub1 }
+    "zero?"         { TokenZeroP }
+    "expt"          { TokenExpt }
+    '<'             { TokenLT }
+    '>'             { TokenGT }
+    "<="            { TokenLE }
+    ">="            { TokenGE }
+    "eq"            { TokenEq }
+    "let"           { TokenLet }
+    "let*"          { TokenLetStar }
+    '('             { TokenPA }
+    ')'             { TokenPC }
 
 %%
 
-ASA : nat                           { Num $1 }
-    | bool                          { Boolean $1 }
-    | '(' '+' Args ')'              { Add $3 }
-    | '(' '-' Args ')'              { Sub $3 }
-    | '(' '*' Args ')'              { Mul $3 }
-    | '(' '/' Args ')'              { Div $3 }
-    | '(' "and" Args ')'            { And $3 }
-    | '(' "or" Args ')'             { Or $3 }
-    | '(' '<' Args ')'              { Lt $3 }
-    | '(' '>' Args ')'              { Gt $3 }
-    | '(' "<=" Args ')'             { Le $3 }
-    | '(' ">=" Args ')'             { Ge $3 }
-    | '(' "expt" ASA ASA ')'        { Expt $3 $4 }
-    | '(' "eq" ASA ASA ')'          { EqP $3 $4 }
-    | '(' "not" ASA ')'             { Not $3 }
-    | '(' "add1" ASA ')'            { Add1 $3 }
-    | '(' "sub1" ASA ')'            { Sub1 $3 }
-    | '(' "zero?" ASA ')'           { ZeroP $3 }
+ASA : nat                                   { Num $1 }
+    | bool                                  { Boolean $1 }
+    | '(' '+' Args ')'                      { Add $3 }
+    | '(' '-' Args ')'                      { Sub $3 }
+    | '(' '*' Args ')'                      { Mul $3 }
+    | '(' '/' Args ')'                      { Div $3 }
+    | '(' "and" Args ')'                    { And $3 }
+    | '(' "or" Args ')'                     { Or $3 }
+    | '(' '<' Args ')'                      { Lt $3 }
+    | '(' '>' Args ')'                      { Gt $3 }
+    | '(' "<=" Args ')'                     { Le $3 }
+    | '(' ">=" Args ')'                     { Ge $3 }
+    | '(' "expt" ASA ASA ')'                { Expt $3 $4 }
+    | '(' "eq" ASA ASA ')'                  { EqP $3 $4 }
+    | '(' "not" ASA ')'                     { Not $3 }
+    | '(' "add1" ASA ')'                    { Add1 $3 }
+    | '(' "sub1" ASA ')'                    { Sub1 $3 }
+    | '(' "zero?" ASA ')'                   { ZeroP $3 }
+    | var                                   { Id $1} -- ojalá funcione
+    | '(' "let" '(' Bindings ')' ASA ')'    { Let $4 $6 }
+    | '(' "let*" '(' Bindings ')' ASA ')'   { LetStar $4 $6 } -- supongo
 
 -- RETO 2
 -- Completa las producciones para:
@@ -61,8 +66,8 @@ ASA : nat                           { Num $1 }
 --   * let* con una o mas asociaciones;
 --   * los no terminales Bindings y Binding.
 
-Args : ASA ASA                       { [$1, $2] }
-     | ASA Args                      { $1 : $2 }
+Args : ASA ASA                      { [$1, $2] }
+     | ASA Args                     { $1 : $2 }
 
 {
 parseError :: [Token] -> a
@@ -70,27 +75,33 @@ parseError toks = error ("Parse error: " ++ show toks)
 
 type Binding = (String, ASA)
 
+-- Algo de los Bindings, debe tener un valor como var (su identificable) y el valor que debe ser un ASA (creo)
+
+Binding : '(' var ASA ')'                       { $2 $3 }
+Bindings : Binding                              { [$1] }
+         | Binding Bindings                     { [$1 : $2]} -- concatenacion recursiva como en el reto 3 de la practica 02 (../practica02/Grammars.y)
+
 data ASA
-  = Id String
-  | Num Int
-  | Boolean Bool
-  | And [ASA]
-  | Or [ASA]
-  | Add [ASA]
-  | Sub [ASA]
-  | Mul [ASA]
-  | Div [ASA]
-  | Lt [ASA]
-  | Gt [ASA]
-  | Le [ASA]
-  | Ge [ASA]
-  | Expt ASA ASA
-  | EqP ASA ASA
-  | Not ASA
-  | Add1 ASA
-  | Sub1 ASA
-  | ZeroP ASA
-  | Let [Binding] ASA
-  | LetStar [Binding] ASA
-  deriving (Eq, Show)
+    = Id String
+    | Num Int
+    | Boolean Bool
+    | And [ASA]
+    | Or [ASA]
+    | Add [ASA]
+    | Sub [ASA]
+    | Mul [ASA]
+    | Div [ASA]
+    | Lt [ASA]
+    | Gt [ASA]
+    | Le [ASA]
+    | Ge [ASA]
+    | Expt ASA ASA
+    | EqP ASA ASA
+    | Not ASA
+    | Add1 ASA
+    | Sub1 ASA
+    | ZeroP ASA
+    | Let [Binding] ASA
+    | LetStar [Binding] ASA
+    deriving (Eq, Show)
 }
