@@ -1,3 +1,5 @@
+-- Reto 1: Estefany
+
 {
 module Lexer (Token(..), lexer) where
 
@@ -22,7 +24,7 @@ tokens :-
   $white+               ;
 
   -- Sintaxis heredada del laboratorio 02
-    let                  { \_ -> TokenLet}      
+    let                   { \_ -> TokenLet}      
     "let*"                { \_ -> TokenLetStar}
     \(                    { \_ -> TokenPA }
     \)                    { \_ -> TokenPC }
@@ -63,30 +65,30 @@ tokens :-
 
 {
 data Token
-  = TokenLet 
-  | TokenLetStar 
-  | TokenId String
-  | TokenNum Int
-  | TokenBool Bool
-  | TokenSuma
-  | TokenResta
-  | TokenMul
-  | TokenDiv
-  | TokenAnd
-  | TokenOr
-  | TokenNot
-  | TokenAdd1
-  | TokenSub1
-  | TokenZeroP
-  | TokenExpt
-  | TokenLT
-  | TokenGT
-  | TokenLE
-  | TokenGE
-  | TokenEq
-  | TokenPA
-  | TokenPC
-  deriving (Eq, Show)
+    = TokenLet 
+    | TokenLetStar 
+    | TokenId String
+    | TokenNum Int
+    | TokenBool Bool
+    | TokenSuma
+    | TokenResta
+    | TokenMul
+    | TokenDiv
+    | TokenAnd
+    | TokenOr
+    | TokenNot
+    | TokenAdd1
+    | TokenSub1
+    | TokenZeroP
+    | TokenExpt
+    | TokenLT
+    | TokenGT
+    | TokenLE
+    | TokenGE
+    | TokenEq
+    | TokenPA
+    | TokenPC
+    deriving (Eq, Show)
 
 normalizeSpaces :: String -> String
 normalizeSpaces = map (\c -> if isSpace c then '\x20' else c)
