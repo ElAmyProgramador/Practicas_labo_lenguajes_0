@@ -54,3 +54,8 @@ $ ghc -package array <ARCHIVO.hs>
 ```
 
 *Esta libreria se usa a la hora de que alex genere el analizador léxico con "saltos" eficientes, similar a la biblioteca Vector de C++*
+
+Puede ocurrir que después de instalar los modulos o paquetes estos después de un reainicio ya no estén habilitados, simplemente se debe de agregar en .bashrc o zshrc la siguiente línea
+```
+export PATH="$HOME/.local/bin/:$HOME/.ghcup/bin/:$PATH"
+```
