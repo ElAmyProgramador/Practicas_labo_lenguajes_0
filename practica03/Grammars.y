@@ -56,8 +56,8 @@ ASA : nat                                   { Num $1 }
     | '(' "sub1" ASA ')'                    { Sub1 $3 }
     | '(' "zero?" ASA ')'                   { ZeroP $3 }
     | var                                   { Id $1} -- ojalá funcione
-    | '(' "let" '(' Bindings ')' ASA ')'    { Let $4 $6 }
-    | '(' "let*" '(' Bindings ')' ASA ')'   { LetStar $4 $6 } -- supongo
+    | '(' "let" '(' Bindings ')' ASA ')'     { Let $4 $6 }
+    | '(' "let*" '(' Bindings ')' ASA ')'    { LetStar $4 $6 } -- supongo
 
 -- RETO 2
 -- Completa las producciones para:
@@ -69,17 +69,19 @@ ASA : nat                                   { Num $1 }
 Args : ASA ASA                      { [$1, $2] }
      | ASA Args                     { $1 : $2 }
 
+-- esto sigue siendo gramática
+Binding : '(' var ASA ')'           { ($2, $3) } -- esto debido a que el type binding es de la forma Binding :: (String, ASA) -> Binding (siendo funcion constructora, no una funcion normal)
+
+Bindings : Binding                  { [$1] }
+         | Binding Bindings         { $1 : $2} -- paso recursivo como en el reto 3 de la practica02 (../practica02/Grammars.y)
+
 {
+-- esto ya es el tipo de haskell
 parseError :: [Token] -> a
 parseError toks = error ("Parse error: " ++ show toks)
 
+-- tipo de alias en dupla (String, ASA) que interpreta (nombreVariable, expresionASA)
 type Binding = (String, ASA)
-
--- Algo de los Bindings, debe tener un valor como var (su identificable) y el valor que debe ser un ASA (creo)
-
-Binding : '(' var ASA ')'                       { $2 $3 }
-Bindings : Binding                              { [$1] }
-         | Binding Bindings                     { [$1 : $2]} -- concatenacion recursiva como en el reto 3 de la practica 02 (../practica02/Grammars.y)
 
 data ASA
     = Id String
