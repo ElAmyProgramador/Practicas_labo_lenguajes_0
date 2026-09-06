@@ -37,16 +37,15 @@ sust (Gt listaASAs) x exp   = Gt (map(\e -> sust e x exp) listaASAs)
 sust (Le listaASAs) x exp   = Le (map(\e -> sust e x exp) listaASAs)
 sust (Ge listaASAs) x exp   = Ge (map(\e -> sust e x exp) listaASAs)
 
-{-
 sust (Let bindings e) varObjetivo nuevaExpr =
     let 
-        variablesDeclaradas = map (\(x, _) -> x) bindings
+        variablesDeclaradas = map fst bindings -- en lugar de \(x, _) -> x, se puede usar fst pues fst :: () => (a, b) -> a (ref: fst :: () => (a, b) -> a). No sabia que había una clase de duplas () 0_0
         sustitucionBindings = map (\(x, expresiones) -> (x, sust expresiones varObjetivo nuevaExpr)) bindings
         sustitucionCuerpo =
-            if(estaEnLista varObjetivo variablesDeclaradas) then e
+            if(elem varObjetivo variablesDeclaradas) then e -- sepa dios de donde sacó una función que comprueba si algo está en una lista, y tampoco es necesario hacerla pues elem es elem :: Eq a => a -> [a] -> Bool (ref: https://hoogle.haskell.org/?hoogle=elem)
             else (sust e varObjetivo nuevaExpr)
     in (Let sustitucionBindings sustitucionCuerpo)
-
+{-
 sust (LetStar [] e) varObjetivo nuevaExpr = LetStar [] (sust e varObjetivo nuevaExpr)
 sust (LetStar ((x,exp): xs) e) varObjetivo nuevaExpr =
     let expr1 = sust expr varObjetivo nuevaExpr
