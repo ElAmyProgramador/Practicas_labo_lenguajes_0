@@ -39,22 +39,23 @@ sust (Ge listaASAs) x exp   = Ge (map(\e -> sust e x exp) listaASAs)
 
 sust (Let bindings e) varObjetivo nuevaExpr =
     let 
-        variablesDeclaradas = map fst bindings -- en lugar de \(x, _) -> x, se puede usar fst pues fst :: () => (a, b) -> a (ref: fst :: () => (a, b) -> a). No sabia que había una clase de duplas () 0_0
+        variablesDeclaradas = map fst bindings -- en lugar de \(x, _) -> x, se puede usar fst pues fst :: () => (a, b) -> a (ref: https://hoogle.haskell.org/?hoogle=fst&scope=set%3Astackage), aunque la lambda era más haskell-idiomática. No sabia que había una clase de duplas () 0_0
         sustitucionBindings = map (\(x, expresiones) -> (x, sust expresiones varObjetivo nuevaExpr)) bindings
         sustitucionCuerpo =
-            if(elem varObjetivo variablesDeclaradas) then e -- sepa dios de donde sacó una función que comprueba si algo está en una lista, y tampoco es necesario hacerla pues elem es elem :: Eq a => a -> [a] -> Bool (ref: https://hoogle.haskell.org/?hoogle=elem)
-            else (sust e varObjetivo nuevaExpr)
+            if(elem varObjetivo variablesDeclaradas)
+                then e -- sepa dios de donde sacó una función que comprueba si algo está en una lista, y tampoco es necesario hacerla pues elem ya hace eso con una firma muy bonita elem :: Eq a => a -> [a] -> Bool (ref: https://hoogle.haskell.org/?hoogle=elem)
+                else (sust e varObjetivo nuevaExpr)
     in (Let sustitucionBindings sustitucionCuerpo)
-{-
+
 sust (LetStar [] e) varObjetivo nuevaExpr = LetStar [] (sust e varObjetivo nuevaExpr)
-sust (LetStar ((x,exp): xs) e) varObjetivo nuevaExpr =
-    let expr1 = sust expr varObjetivo nuevaExpr
-    in if x==varObjetivo then
-        LetStar ((x, expr1) : ys) e
-        else case sust (LetStar ys e) varObjetivo nuevaExpr of
-        LetStar expr1 e1 -> LetStar ((x, expr1): ys) e1
-        _ -> error
--}
+sust (LetStar ((x, exp): xs) e) varObjetivo nuevaExpr =
+    let exp = sust exp varObjetivo nuevaExpr -- en una lista (x : exp) el identificador general debe mantenerse consistente
+    in if x == varObjetivo then -- la funcion (==) debe estar separada para leer lo siguiente
+        LetStar ((x, exp) : xs) e -- supongo que queria hacer recursion para listas dentro de listas
+        else case sust (LetStar xs e) varObjetivo nuevaExpr of -- otro error en recursion
+        LetStar expr1 e1 -> LetStar ((x, exp): xs) e1 -- supongo que queria hacer recursion en listas dentro de listas, aunque creo solo tendremos listas simples de la forma [a] y no [[a]]
+        _ -> error "Esta mal en la sustitucion de Let* :(" -- creo debería mostrar la constante que definimos en el grammars, pero da error, me parece que á firma aquí debe ser error :: HasCallStack => Text -> a (sino quizás deba de enlazarse de una manera mistica) ref: https://hoogle.haskell.org/?hoogle=error&scope=set%3Astackage
+
 --sustMany :: ASA -> [Binding] -> ASA
 
 -- RETO 4: semantica operacional de paso grande
