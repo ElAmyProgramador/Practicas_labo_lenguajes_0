@@ -45,7 +45,11 @@ freeVars (LetStar ((x1, e1): bindingsRestantes) body) =
 
 eEnBindingsAuxiliar ::  [Binding] -> [String]
 eEnBindingsAuxiliar [] = []
-eEnBindingsAuxiliar ((_, eiesimo): xs) = names eiesimo ++ eEnBindingsAuxiliar xs
+eEnBindingsAuxiliar lstBindings =
+    concatMap (names . snd) lstBindings
+    -- similar a los fst, pero con una camposicion de funciones de snd (snd :: () => (a, b) -> b), names y bajo concatMap (concatMap :: Foldable t => (a -> [b]) -> t a -> [b])
+    -- ref snd: https://hoogle.haskell.org/?hoogle=snd&scope=set%3Astackage
+    -- ref concatMap: https://hoogle.haskell.org/?hoogle=concatMap&scope=set%3Astackage
 
 namesAuxiliar :: [Binding] -> ASA -> [String]
 namesAuxiliar bindings e    =
