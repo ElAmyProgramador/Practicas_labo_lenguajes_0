@@ -48,37 +48,30 @@ eEnBindingsAuxiliar [] = []
 eEnBindingsAuxiliar ((_, eiesimo): xs) = names eiesimo ++ eEnBindingsAuxiliar xs
 
 namesAuxiliar :: [Binding] -> ASA -> [String]
-namesAuxiliar bindings e =
-    let xEnBindings = map (\(x, _) -> x) bindings
-        eEnBindings = eEnBindingsAuxiliar bindings
-        namesBody = names e
+namesAuxiliar bindings e    =
+    let xEnBindings         = map (\(x, _) -> x) bindings
+        eEnBindings         = eEnBindingsAuxiliar bindings
+        namesBody           = names e
     in xEnBindings ++ eEnBindings ++ namesBody
+
+namesAuxiliar2 :: [ASA] -> [String] -- "Amy"
+namesAuxiliar2 lstASA = concatMap names lstASA -- concatMap es un map sobre String, f cama su nombre lo dice, concatena, además de tener instancia de la clase foldable, lo que la hace más predecible
 
 names :: ASA -> [String]
 names (Id x)                = []
 names (Num n)               = []
 names (Boolean b)           = []
 names (Not e )              = names e
-names (And [])              = []
-names (And (x:xs))          = names x ++ names (And xs)
-names (Or [])               = []
-names (Or (x:xs))           = names x ++ names (Or xs)
-names (Add [])              = []
-names (Add (x:xs))          = names x ++ names (Add xs)
-names (Sub [])              = []
-names (Sub (x:xs))          = names x ++ names (Sub xs)
-names (Mul [])              = []
-names (Mul (x:xs))          = names x ++ names (Mul xs)
-names (Div [])              = []
-names (Div (x:xs))          = names x ++ names (Div xs)
-names (Lt [])               = []
-names (Lt (x:xs))           = names x ++ names (Lt xs)
-names (Gt [])               = []
-names (Gt (x:xs))           = names x ++ names (Gt xs)
-names (Le [])               = []
-names (Le (x:xs))           = names x ++ names (Le xs)
-names (Ge [])               = []
-names (Ge (x:xs))           = names x ++ names (Ge xs)
+names (And lstASA)          = namesAuxiliar2 lstASA
+names (Or lstASA)           = namesAuxiliar2 lstASA
+names (Add lstASA)          = namesAuxiliar2 lstASA
+names (Sub lstASA)          = namesAuxiliar2 lstASA
+names (Mul lstASA)          = namesAuxiliar2 lstASA
+names (Div lstASA)          = namesAuxiliar2 lstASA
+names (Gt lstASA)           = namesAuxiliar2 lstASA
+names (Lt lstASA)           = namesAuxiliar2 lstASA
+names (Le lstASA)           = namesAuxiliar2 lstASA
+names (Ge lstASA)           = namesAuxiliar2 lstASA
 names (EqP e1 e2)           = names e1 ++ names e2
 names (Expt e1 e2)          = names e1 ++ names e2
 names (ZeroP e)             = names e
