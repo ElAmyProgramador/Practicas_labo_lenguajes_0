@@ -9,6 +9,14 @@ import Grammars
 
 --freshName :: [String] -> String
 
+-- funcion generalizadora del map para listas de ASA (tal vez quedaria bien con curry, pero creo todos los parametros son minimos necesarios)
+
+anyaMap :: ([ASA] -> ASA) -> [ASA] -> String -> ASA -> ASA
+anyaMap asaF lstASA x exp =
+    asaF $ map bartolo lstASA
+    where
+        bartolo = \e -> sust e x exp
+
 sust :: ASA -> String -> ASA -> ASA
 sust (Id x) y exp
     | x == y    = exp
@@ -22,11 +30,21 @@ sust (Sub1 e) y exp     = Sub1 $ sust e y exp
 sust (ZeroP e) y exp    = ZeroP $ sust e y exp
 sust (Expt e1 e2) y exp = Expt (sust e1 y exp) (sust e2 y exp)
 sust (EqP e1 e2) y exp  = EqP (sust e1 y exp) (sust e2 y exp)
--- utilizamos map para aplicar la función a cada element de cada ASA
--- esta funcion se hace para evitar reescribir código
---anyaMap :: ASA -> String -> ASA -> ASA
---anyaMap (asaF lstASA) y exp = asaF $ map (\e -> sust e y exp) lstASA
-sust (And listaASAs) x exp  = And (map(\e -> sust e x exp) listaASAs)
+
+-- usando anyaMap
+sust (And listaASAs) x exp  = anyaMap And listaASAs x exp
+sust (Or listaASAs) x exp   = anyaMap Or listaASAs x exp
+sust (Add listaASAs) x exp  = anyaMap Add listaASAs x exp
+sust (Sub listaASAs) x exp  = anyaMap Sub listaASAs x exp
+sust (Mul listaASAs) x exp  = anyaMap Mul listaASAs x exp
+sust (Div listaASAs) x exp  = anyaMap Div listaASAs x exp
+sust (Lt listaASAs) x exp   = anyaMap Lt listaASAs x exp
+sust (Gt listaASAs) x exp   = anyaMap Gt listaASAs x exp
+sust (Le listaASAs) x exp   = anyaMap Le listaASAs x exp
+sust (Ge listaASAs) x exp   = anyaMap Ge listaASAs x exp
+-- en mi mente se veía más limpio :(
+
+{-
 sust (Or listaASAs) x exp   = Or (map(\e -> sust e x exp) listaASAs)
 sust (Add listaASAs) x exp  = Add (map(\e -> sust e x exp) listaASAs)
 sust (Sub listaASAs) x exp  = Sub (map(\e -> sust e x exp) listaASAs)
@@ -36,6 +54,7 @@ sust (Lt listaASAs) x exp   = Lt (map(\e -> sust e x exp) listaASAs)
 sust (Gt listaASAs) x exp   = Gt (map(\e -> sust e x exp) listaASAs)
 sust (Le listaASAs) x exp   = Le (map(\e -> sust e x exp) listaASAs)
 sust (Ge listaASAs) x exp   = Ge (map(\e -> sust e x exp) listaASAs)
+-}
 
 sust (Let bindings e) varObjetivo nuevaExpr =
     let 
