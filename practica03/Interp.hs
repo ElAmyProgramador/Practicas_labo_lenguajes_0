@@ -49,7 +49,7 @@ eEnBindingsAuxiliar ((_, eiesimo): xs) = names eiesimo ++ eEnBindingsAuxiliar xs
 
 namesAuxiliar :: [Binding] -> ASA -> [String]
 namesAuxiliar bindings e    =
-    let xEnBindings         = map (\(x, _) -> x) bindings
+    let xEnBindings         = map fst bindings
         eEnBindings         = eEnBindingsAuxiliar bindings
         namesBody           = names e
     in xEnBindings ++ eEnBindings ++ namesBody
