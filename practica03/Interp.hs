@@ -1,11 +1,47 @@
 module Interp where
 
 import Grammars
+import FuncAux
+
+-- funcion auxiliar freeVarsEnLlista
+freeVarsEnLista :: [ASA] -> [String]
+freeVarsEnLista []      = []
+freeVarsEnLista (x:xs)  = freeVars x ++ freeVarsEnLista xs
 
 -- RETO 3: sustitucion nominal que evita captura -- Estefany
---freeVars :: ASA -> [String]
 
---names :: ASA -> [String]
+freeVars :: ASA -> [String]
+freeVars (Id x)                 = [x]
+freeVars (Num n)                = []
+freeVars (Boolean b)            = []
+freeVars (Not e)                = freeVars(e)
+freeVars (And lstASA)           = freeVarsEnLista lstASA
+freeVars (Or lstASA)            = freeVarsEnLista lstASA
+freeVars (Add lstASA)           = freeVarsEnLista lstASA
+freeVars (Sub lstASA)           = freeVarsEnLista lstASA
+freeVars (Mul lstASA)           = freeVarsEnLista lstASA
+freeVars (Div lstASA)           = freeVarsEnLista lstASA
+freeVars (Lt lstASA)            = freeVarsEnLista lstASA
+freeVars (Gt lstASA)            = freeVarsEnLista lstASA
+freeVars (Le lstASA)            = freeVarsEnLista lstASA
+freeVars (Ge lstASA)            = freeVarsEnLista lstASA
+freeVars (EqP e1 e2)            = (freeVars e1) ++ (freeVars e2)
+freeVars (Expt e1 e2)           = (freeVars e1) ++ (freeVars e2)
+freeVars (ZeroP e)              = freeVars e
+freeVars (Add1 e)               = freeVars e
+freeVars (Sub1 e)               = freeVars e
+freeVars (Let bindings body)    =
+    let varDeclaradas           = map fst bindings --lista de las x1,...,xn de los pares ordenados (xn, en)
+        expresiones             = map snd bindings --lista de expresiones e1,.., en en los pares ordanados (xn, en)
+        varLibreEnExpresiones   = freeVarsEnLista expresiones
+        varLibreEnBody          = freeVars body
+        cuerpoSinVarDeclaradas  = eliminaEnLista varDeclaradas varLibreEnBody
+    in varLibreEnExpresiones ++ cuerpoSinVarDeclaradas
+freeVars (LetStar [] body)      = freeVars body
+freeVars (LetStar ((x1, e1): bindingsRestantes) body) =
+    freeVars e1 ++ eliminaElemento x1 (freeVars (LetStar bindingsRestantes body)) -- no $ :(
+
+-- names :: ASA -> [String]
 
 --freshName :: [String] -> String
 
