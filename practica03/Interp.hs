@@ -164,12 +164,55 @@ sust (LetStar ((x, exp): xs) e) varObjetivo nuevaExpr =
         LetStar expr1 e1 -> LetStar ((x, exp): xs) e1 -- supongo que queria hacer recursion en listas dentro de listas, aunque creo solo tendremos listas simples de la forma [a] y no [[a]]
         _ -> error "Esta mal en la sustitucion de Let* :(" -- creo debería mostrar la constante que definimos en el grammars, pero da error, me parece que á firma aquí debe ser error :: HasCallStack => Text -> a (sino quizás deba de enlazarse de una manera mistica) ref: https://hoogle.haskell.org/?hoogle=error&scope=set%3Astackage
 
---sustMany :: ASA -> [Binding] -> ASA
+sustMany :: ASA -> [Binding] -> ASA
+sustMany exp []                     = exp
+sustMany (Id x) listaB              = sustMAuxiliar x listaB
+sustMany (Num n) _                  = Num n
+sustMany (Boolean b) _              = Boolean b
+sustMany (Not e) listaB             = Not (sustMany e listaB)
+sustMany (Add1 e) listaB            = Add1 (sustMany e listaB)
+sustMany (Sub1 e) listaB            = Sub1 (sustMany e listaB)
+sustMany (ZeroP e) listaB           = ZeroP (sustMany e listaB)
+sustMany (EqP e1 e2) listaB         = EqP (sustMany e1 listaB) (sustMany e2 listaB)
+sustMany (Expt e1 e2) listaB        = Expt (sustMany e1 listaB) (sustMany e2 listaB)
+sustMany (Or listaASAs) listaB      = Or (map(\e -> sustMany e listaB) listaASAs)
+sustMany (And listaASAs) listaB     = And (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Add listaASAs) listaB     = Add (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Sub listaASAs) listaB     = Sub (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Mul listaASAs) listaB     = Mul (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Div listaASAs) listaB     = Div (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Lt listaASAs) listaB      = Lt (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Gt listaASAs) listaB      = Gt (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Le listaASAs) listaB      = Le (map(\e -> sustMany e listaB) listaASAs)
+sustMany (Ge listaASAs) listaB      = Ge (map(\e -> sustMany e listaB) listaASAs)
+
+-- ahora con nuestros Let
+sustMany (Let bindings body) listaB =
+    let varDeclaradas = map fst bindings
+        sustBindingsLocales = map (\(x, e) -> (x, sustMany e listaB)) bindings
+        sustitucionesValidas = filter (\(x, _) -> x `notElem` varDeclaradas) listaB
+        varLibresEnListaB = concatMap (\(_, e) -> freeVars e) sustitucionesValidas
+        errorCaptura = filter (`elem` varLibresEnListaB) varDeclaradas
+    in 
+        if null errorCaptura
+        then Let sustBindingsLocales (sustMany body sustitucionesValidas)
+        else 
+            let nombreVarUsadas = names body ++ freeVars body ++ varLibresEnListaB ++ map fst listaB
+                (renombramientoVar, newBody) = foldl (renombrarVar nombreVarUsadas) (varDeclaradas, body) errorCaptura
+                renombramientoB = zip renombramientoVar (map snd sustBindingsLocales) 
+            in Let renombramientoB (sustMany newBody sustitucionesValidas)
+  where 
+    renombrarVar usado (bVars, bBody) v =
+        let vNuevo = freshName usado
+            bBody1 = sustMany bBody [(v, Id vNuevo)]
+            bVars1 = map (\var -> if var == v then vNuevo else var) bVars
+        in (bVars1, bBody1)
 
 -- RETO 4: semantica operacional de paso grande
 -- let es simultaneo; let* se evalua directamente, asociacion por asociacion.
+-- supongo que forma un semigrupo de expresiones con este lenguaje y las funciones
 -- "Amy"
-{-
+
 bigStep :: ASA -> Maybe ASA
 bigStep (Num n)             = Just $ Num n
 bigStep (Boolean b)         = Just $ Boolean b
@@ -183,4 +226,5 @@ bigStep (LetStar [] cuerpo) = bigStep cuerpo
 bigStep (LetStar ((x, e1) : cs) cuerpo) = do
     v1 <- bigStep e1
     let colaLetStar = sust (LetStar cs cuerpo) x v1
--}
+    bigStep colaLetStar
+
