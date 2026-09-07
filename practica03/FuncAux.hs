@@ -10,20 +10,7 @@ eliminaElemento :: String -> [String] -> [String]
 eliminaElemento y lst = filter (/= y) lst
 -- que creo puede generalizarse a eliminaElemento :: Eq a => a -> [a] -> [a]; aunque en la practica solo tengamos [String] -- "Amy"
 
-
 eliminaEnLista :: [String] -> [String] -> [String]
 eliminaEnLista [] y = y
 eliminaEnLista (x:xs) y = eliminaEnLista xs (eliminaElemento x y)
 
-{-
-namesAuxiliar :: [Binding] -> ASA -> [String]
-namesAuxiliar bindings e =
-    let xEnBindings = map (\(x, _) -> x) bindings
-        eEnBindings = eEnBindingsAuxiliar bindings
-        namesBody = names e
-    in xEnBindings ++ eEnBindings ++ namesBody
-
-eEnBindingsAuxiliar ::  [Binding] -> [String]
-eEnBindingsAuxiliar [] = []
-eEnBindingsAuxiliar ((_, eiesimo): xs) = names eiesimo ++ eEnBindingsAuxiliar xs
--}

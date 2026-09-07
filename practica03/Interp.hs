@@ -41,7 +41,51 @@ freeVars (LetStar [] body)      = freeVars body
 freeVars (LetStar ((x1, e1): bindingsRestantes) body) =
     freeVars e1 ++ eliminaElemento x1 (freeVars (LetStar bindingsRestantes body)) -- no $ :(
 
--- names :: ASA -> [String]
+-- función auxiliar de names y bindings
+
+eEnBindingsAuxiliar ::  [Binding] -> [String]
+eEnBindingsAuxiliar [] = []
+eEnBindingsAuxiliar ((_, eiesimo): xs) = names eiesimo ++ eEnBindingsAuxiliar xs
+
+namesAuxiliar :: [Binding] -> ASA -> [String]
+namesAuxiliar bindings e =
+    let xEnBindings = map (\(x, _) -> x) bindings
+        eEnBindings = eEnBindingsAuxiliar bindings
+        namesBody = names e
+    in xEnBindings ++ eEnBindings ++ namesBody
+
+names :: ASA -> [String]
+names (Id x)                = []
+names (Num n)               = []
+names (Boolean b)           = []
+names (Not e )              = names e
+names (And [])              = []
+names (And (x:xs))          = names x ++ names (And xs)
+names (Or [])               = []
+names (Or (x:xs))           = names x ++ names (Or xs)
+names (Add [])              = []
+names (Add (x:xs))          = names x ++ names (Add xs)
+names (Sub [])              = []
+names (Sub (x:xs))          = names x ++ names (Sub xs)
+names (Mul [])              = []
+names (Mul (x:xs))          = names x ++ names (Mul xs)
+names (Div [])              = []
+names (Div (x:xs))          = names x ++ names (Div xs)
+names (Lt [])               = []
+names (Lt (x:xs))           = names x ++ names (Lt xs)
+names (Gt [])               = []
+names (Gt (x:xs))           = names x ++ names (Gt xs)
+names (Le [])               = []
+names (Le (x:xs))           = names x ++ names (Le xs)
+names (Ge [])               = []
+names (Ge (x:xs))           = names x ++ names (Ge xs)
+names (EqP e1 e2)           = names e1 ++ names e2
+names (Expt e1 e2)          = names e1 ++ names e2
+names (ZeroP e)             = names e
+names (Add1 e)              = names e
+names (Sub1 e)              = names e
+names (Let bindings e)      = (namesAuxiliar bindings e)
+names (LetStar bindings e)  = (namesAuxiliar bindings e)
 
 --freshName :: [String] -> String
 
@@ -58,6 +102,7 @@ sust (Id x) y exp
     | x == y    = exp
     | otherwise = Id x
 -- creo esto se puede pasar con casos, o sino con gurdas generalizando el contructor a lo que es (una función)
+
 sust (Num n) _ _        = Num n
 sust (Boolean b) _ _    = Boolean b
 sust (Not e) y exp      = Not $ sust e y exp
