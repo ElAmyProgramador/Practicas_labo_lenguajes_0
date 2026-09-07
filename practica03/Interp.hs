@@ -80,7 +80,18 @@ names (Sub1 e)              = names e
 names (Let bindings e)      = (namesAuxiliar bindings e)
 names (LetStar bindings e)  = (namesAuxiliar bindings e)
 
---freshName :: [String] -> String
+freshNameAuxiliar :: [String] -> Int -> String
+freshNameAuxiliar varLigadas num =
+    let nuevo = if num == 0
+        then "x"
+        else "x" ++ show num
+    in 
+        if elem nuevo varLigadas -- me da cosa la notacion infija xD
+        then freshNameAuxiliar varLigadas (num + 1)
+        else nuevo
+
+freshName :: [String] -> String
+freshName varLigadas = freshNameAuxiliar varLigadas 0
 
 -- funcion generalizadora del map para listas de ASA (tal vez quedaria bien con curry, pero creo todos los parametros son minimos necesarios)
 
