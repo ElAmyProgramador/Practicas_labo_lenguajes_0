@@ -51,7 +51,8 @@ SASA : var                                      { IdS $1 }
      -- clausulas restantes y el else final.
      -- la wea del cond, antes hacia una recursion que nunca iba a acabar
      | '(' "cond" '(' SASA SASA ')' Clauses ')' { CondS (($4, $5) : fst $7) (snd $7) } -- corregido
-     -- la wea del else
+     -- letrec
+     | '(' "letrec" '(' var SASA ')' SASA ')'   { LetRecS $4 $5 $7 }
 
 Params      : var                               { [$1] }
             | var Params                        { $1 : $2 }
