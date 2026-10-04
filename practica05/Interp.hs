@@ -146,30 +146,28 @@ bigStep env (Sub x y)=
 
         Just (NumV n) = strict e1           
         Just (NumV m) = strict e2
-    in Just(NumV (n + m))
+    in Just(NumV (max 0 (n - m))) -- esto debe ser truncado
 
 --Fun
 bigStep env (Fun p b) = Just (ClosureV p b env)
 
 --App
-bigStep env (App f a) =
-    let
-        Just (ClosureV p b envFun)= bigStep env f
-        envNuevo =[(p, (ExprV a env))] ++ envFun
-    in bigStep envNuevo b
+bigStep env (App f a) = bigStep env f >>= strict >>= evalApp -- tal vez queda con dian1
+    where
+        evalApp (ClosureV p b envFun)   = bigStep ((p, ExprV a env) : envFun) b
+        evalApp _                       = Nothing
 
 --If
-bigStep env (If a1 a2 a3) =
-    let
-        Just w = bigStep env a1
-        Just(NumV n) = strict w
-    in
-        if n == 0 then bigStep env a2
-        else bigStep env a3
+bigStep env (If a1 a2 a3) = bigStep env a1 >>= strict >>= evalIf
+    where
+        evalIf (BooleanV True)  = bigStep env a2
+        evalIf (BooleanV False) = bigStep env a3
+        evalIf (NumV 0)         = bigStep env a3
+        evalIf (NumV _)         = bigStep env a2
+        evalIf _                = Nothing
 
 --Not
-bigStep env (Not e) =
-    let 
-        Just w = bigStep env e
-        Just (BooleanV b) = strict w
-    in Just (BooleanV (not b))
+bigStep env (Not e) = bigStep env e >>= strict >>= evalNot
+    where
+        evalNot (BooleanV b) = Just $ BooleanV (not b)
+        evalNot _               = Nothing
