@@ -1,3 +1,4 @@
+-- Aqui van los tipos para tener todo bien ordenadito
 module Tipos where
 
 import Grammars

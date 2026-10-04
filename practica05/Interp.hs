@@ -95,15 +95,24 @@ desugar (CondS condiciones expresion)   = desugarCond condiciones expresion
 desugar (LetRecS f e c) = desugar $ LetS f a c
     where a = AppS (IdS "Y") [FunS [f] e] -- esto ya estaba con nuestro desugar pasado
 
-{-
 -- RETO 4: evaluacion perezosa con alcance estatico ------------------------
 
 -- Busca la asociacion mas reciente sin exigir su contenido.
 lookupEnv :: Nombre -> Env -> Maybe Value
+lookupEnv _ [] = Nothing            
+lookupEnv x ((k, v):xs)             
+    | x == k    = Just v            
+    | otherwise = lookupEnv x xs
 
 -- Exige una cerradura de expresion usando el ambiente guardado. Si al
 -- evaluarla se obtiene otra ExprV, continua hasta producir otro valor.
 strict :: Value -> Maybe Value
+strict (NumV x) = Just (NumV x)
+strict (BooleanV b) = Just (BooleanV b)
+strict (ClosureV x a env) = Just (ClosureV x a env)
+strict (ExprV a env)
+    |Just e' <- bigStep env a = strict e'
+    |otherwise = Nothing
 
 -- Semantica de paso grande con alcance estatico y evaluacion perezosa.
 --
@@ -115,4 +124,46 @@ strict :: Value -> Maybe Value
 -- * If exige solamente la condicion y evalua una sola rama.
 --
 -- La resta sobre naturales permanece truncada en cero.
-bigStep :: Env -> ASA -> Maybe Value -}
+bigStep :: Env -> ASA -> Maybe Value
+bigStep _ (Num n) = Just (NumV n)
+bigStep _ (Boolean b) = Just (BooleanV b)
+--operaciones aritméticas
+bigStep env (Add x y) = 
+    let
+        Just e1 = bigStep env x
+        Just e2 = bigStep env y
+
+        Just (NumV n) = strict e1           
+        Just (NumV m) = strict e2
+    in Just(NumV (n + m))
+
+bigStep env (Sub x y)= 
+    let
+        Just e1 = bigStep env x
+        Just e2 = bigStep env y
+
+        Just (NumV n) = strict e1           
+        Just (NumV m) = strict e2
+    in Just(NumV (n + m))
+--Fun
+bigStep env (Fun p b) = Just (ClosureV p b env)
+--App
+bigStep env (App f a) =
+    let
+        Just (ClosureV p b envFun)= bigStep env f
+        envNuevo =[(p, (ExprV a env))] ++ envFun
+    in bigStep envNuevo b
+--If
+bigStep env (If a1 a2 a3) =
+    let
+        Just w = bigStep env a1
+        Just(NumV n) = strict w
+    in
+        if n == 0 then bigStep env a2
+        else bigStep env a3
+--Not
+bigStep env (Not e) =
+    let 
+        Just w = bigStep env e
+        Just (BooleanV b) = strict w
+    in Just (BooleanV (not b))

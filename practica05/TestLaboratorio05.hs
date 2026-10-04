@@ -3,6 +3,7 @@ module Main where
 import Grammars
 import Interp
 import Lexer
+import Tipos -- esta línea solo para tener presente el tipo ASA
 import MiniLispPlusPlus (evalua)
 import Test.QuickCheck hiding (Fun)
 
