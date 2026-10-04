@@ -49,13 +49,9 @@ SASA : var                                      { IdS $1 }
      -- siempre con una clausula else. Consume la primera clausula ordinaria
      -- en la produccion de cond y define un no terminal Clauses para las
      -- clausulas restantes y el else final.
-     -- la wea del cond
-     | '(' "cond" CondRec SASA ')'              { CondS $3 $4 }
+     -- la wea del cond, antes hacia una recursion que nunca iba a acabar
+     | '(' "cond" '(' SASA SASA ')' Clauses ')' { CondS (($4, $5) : fst $7) (snd $7) } -- corregido
      -- la wea del else
-
--- como en las precticas anteriores
-CondRec     : '(' SASA SASA ')'                 { [ ($2, $3) ] }
-            | '(' SASA SASA ')' CondRec         { ($2, $3) : $5 } -- de forma recursiva (rehacer)
 
 Params      : var                               { [$1] }
             | var Params                        { $1 : $2 }
@@ -69,8 +65,9 @@ Operands    : SASA SASA                         { [$1, $2] }
 Bindings    : '(' var SASA ')'                  { [($2, $3)] }
             | '(' var SASA ')' Bindings         { ($2, $3) : $5 }
 
--- la clausula pedida
-ElseClause  : '(' "else" SASA ')'                  { $3 }
+-- un Clauses
+Clauses     : '(' "else" SASA ')'               { ([], $3) }
+            | '(' SASA SASA ')' Clauses         { (($2, $3) : fst $5, snd $5) }
 
 {
 parseError :: [Token] -> a

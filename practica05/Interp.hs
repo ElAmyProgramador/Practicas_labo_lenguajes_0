@@ -125,8 +125,10 @@ strict (ExprV a env)
 --
 -- La resta sobre naturales permanece truncada en cero.
 bigStep :: Env -> ASA -> Maybe Value
+bigStep env (Id x)  = lookupEnv x env
 bigStep _ (Num n) = Just (NumV n)
 bigStep _ (Boolean b) = Just (BooleanV b)
+
 --operaciones aritméticas
 bigStep env (Add x y) = 
     let
@@ -145,14 +147,17 @@ bigStep env (Sub x y)=
         Just (NumV n) = strict e1           
         Just (NumV m) = strict e2
     in Just(NumV (n + m))
+
 --Fun
 bigStep env (Fun p b) = Just (ClosureV p b env)
+
 --App
 bigStep env (App f a) =
     let
         Just (ClosureV p b envFun)= bigStep env f
         envNuevo =[(p, (ExprV a env))] ++ envFun
     in bigStep envNuevo b
+
 --If
 bigStep env (If a1 a2 a3) =
     let
@@ -161,6 +166,7 @@ bigStep env (If a1 a2 a3) =
     in
         if n == 0 then bigStep env a2
         else bigStep env a3
+
 --Not
 bigStep env (Not e) =
     let 
