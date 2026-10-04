@@ -27,13 +27,29 @@ type Env = [(Nombre, Value)]
 
 -- Recupera estas funciones del laboratorio 4. Las funciones y aplicaciones
 -- del nucleo siguen siendo unarias, y las operaciones siguen siendo binarias.
+
+-- el copia y pega
 curryFun :: [Nombre] -> ASA -> Maybe ASA
+curryFun [] _       = Nothing
+curryFun [x] e      = Just $ Fun x e
+curryFun (x:xs) e
+    | elem x xs     = Nothing
+    | otherwise     = Fun x <$> curryFun xs e
+    -- usando applicative
+
 curryApp :: ASA -> [ASA] -> Maybe ASA
+curryApp _ []       = Nothing
+curryApp e (x:xs)   = Just $ feldl f x xs
+
 binaryOp :: (ASA -> ASA -> ASA) -> [ASA] -> Maybe ASA
+binaryOp _ []       = Nothing
+binaryOp _ [x]      = Nothing
+binaryOp f (x:xs)   = Just $ foldl f x xs
 
 -- Desazucara las clausulas ordinarias de cond en If anidados. La alternativa
 -- else es el ultimo argumento y se conserva como la rama final.
 desugarCond :: [(SASA, SASA)] -> SASA -> Maybe ASA
+ -- haciendo pattern matching desde la pagina de lesli
 
 -- Elimina toda la sintaxis superficial. CondS se traduce a If anidados.
 -- LetRecS f definicion cuerpo se traduce usando el identificador Y:
