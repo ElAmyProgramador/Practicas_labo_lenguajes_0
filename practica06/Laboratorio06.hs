@@ -48,16 +48,17 @@ reversaCola lista   = reversaCola' lista []
     where
         reversaCola' :: [a] -> [a] -> [a]
         reversaCola' [] acc     = acc
-        reversaCola' (x:xs) acc = reversaCola xs : (x : acc) -- acc gurada como una "copia" del init de lista y luego lo concatena con el ultimo (last) que ahora es el primero; refs: https://hoogle.haskell.org/?hoogle=init&scope=set%3Astackage, https://hoogle.haskell.org/?hoogle=last
+        reversaCola' (x:xs) acc = reversaCola' xs : (x : acc) -- acc gurada como una "copia" del init de lista y luego lo concatena con el ultimo (last) que ahora es el primero; refs: https://hoogle.haskell.org/?hoogle=init&scope=set%3Astackage, https://hoogle.haskell.org/?hoogle=last
+
+-- un auxiliar para evitar problemas de tipos de lista 
+anhade :: [a] -> [a] -> ([a] -> r) -> r
+anhade [] lista k       = k lista
+anhade (x:xs) lista k   = anhade xs lista (\m -> k (x : m))
+-- anhade lo que hace es añadir del ultimo (last) al init
 
 reversaCPS :: [a] -> ([a] -> r) -> r
 reversaCPS [] k     = k []
 reversaCPS (x:xs) k = reversaCPS (\resto -> anhade resto (x:[]): k)
-    where
-        anhade :: [a] -> [a] -> ([a] -> r) -> r
-        anhade [] lista k       = k lista
-        anhade (x:xs) lista k   = anhade xs lista (\m -> k (x : m))
-        -- anhade lo que hace es añadir del ultimo (last) al init
 
 -- 4. Concatenacion de una lista de listas ---------------------------------
 
@@ -66,10 +67,15 @@ concatena [] = []
 concatena (xs:xss) = xs : concatena xss
 
 concatenaCola :: [[a]] -> [a]
-concatenaCola = undefined
+concatenaCola lista = concatenaCola' lista []
+    where
+        concatenaCola' :: [[a]] -> [a] -> [a]
+        concatenaCola' [] acc       = acc
+        concatenaCola' (x:xs) acc   = concatenaCola' [x] : (xs : acc)
 
 concatenaCPS :: [[a]] -> ([a] -> r) -> r
-concatenaCPS = undefined
+concatenaCPS [] k       = k []
+concatenaCPS (xs:xss) k = k concatenaCPS xss (\resto -> anhade xs resto k) 
 
 -- 5. Intercalado de dos listas --------------------------------------------
 
