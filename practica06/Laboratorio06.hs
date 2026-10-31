@@ -56,6 +56,7 @@ reversaCPS lista k  = reversaCPS' lista [] k
     where
         reversaCPS' [] acc k        = k acc
         reversaCPS' (x:xs) acc k    = reversaCPS' xs (x : acc) k
+        -- reversaCPS' tiene la misma firma que reversaCPS, solo que se sabe que la continuacion k ya está dada
 
 -- 4. Concatenacion de una lista de listas ---------------------------------
 
@@ -108,3 +109,4 @@ intercalaCPS (x:xs) (y:ys) k    =
 
 -- esta elegante funcion la hizo Estafany :D
 -- supongo que podria hacerse una especie de guardas para evitar el case of
+-- Se hicieron algunas pruebas usando la funcion id
