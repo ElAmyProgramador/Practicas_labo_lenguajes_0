@@ -26,26 +26,22 @@ longitud :: [a] -> Int
 longitud []         = 0
 longitud (_ : xs)   = 1 + longitud xs
 
-longitudColaExtra :: [a] -> Int -> Int
-longitudColaExtra [] acc        = acc
-longitudColaExtra (x:xs) acc    = longitudCola xs (1 + acc)
-
 longitudCola :: [a] -> Int
-longitudCola xs     = longitudColaExtra xs 0
+longitudCola lista                  = longitudCola' lista 0
+    where
+        longitudCola' :: [a] -> Int -> Int
+        longitudCola' [] acc        = acc
+        longitudCola' (_:xs) acc    = longitudCola' xs (acc + 1) -- para este paso hacemos que el acumulador vaya incrementando
 
 longitudCPS :: [a] -> (Int -> r) -> r
-longitudCPS [] k        = k
-longitudCPS (x:xs) k    = longitudCPS xs (\v -> k (1 + v))
+longitudCPS [] k                    = k 0 -- el cero porque directamente el valor de longitud de una lista bacía, aunque tambien serviría longitudCola []
+longitudCPS (_:xs) k                = longitudCPS xs (\resumen -> k (1 + resumen)) -- el acumulador se va sumando
 
 -- 3. Reversa de una lista --------------------------------------------------
 
 reversa :: [a] -> [a]
 reversa [] = []
 reversa (x : xs) = reversa xs : [x] -- no es algo personal, pero prefiero que las listas se concatenan usando el operando (:), porque aveces con listas con clase de tipo a, puede dar errores :(
-
-reversaColaExtra :: [a] -> [b] -> [a] -- me parece que el 
-reversaColaExtra [] lista       = lista
-reversaColaExtra (x:xs) lista   = reversaColaExtra (xs) (x:lista)
 
 reversaCola :: [a] -> [a]
 reversaCola = undefined
@@ -57,7 +53,7 @@ reversaCPS = undefined
 
 concatena :: [[a]] -> [a]
 concatena [] = []
-concatena (xs : xss) = xs ++ concatena xss
+concatena (xs:xss) = xs : concatena xss
 
 concatenaCola :: [[a]] -> [a]
 concatenaCola = undefined
