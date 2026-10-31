@@ -14,7 +14,7 @@ potenciaCola n m        = potenciaCola' n m 1
     where -- este uso de where es curioso
         potenciaCola' :: Int -> Int -> Int -> Int
         potenciaCola' _ 0 acc = acc -- si no hay nada que multiplicar, entonces se devuelve el acumulador
-        potenciaCola' n m acc = acc * potenciaCola' n (m - 1) (acc * n) -- para cuando m = 0, se guarde el valor
+        potenciaCola' n m acc = potenciaCola' n (m - 1) (acc * n) -- para cuando m = 0, se guarde el valor
 
 potenciaCPS :: Int -> Int -> (Int -> r) -> r
 potenciaCPS _ 0 k = k 1 -- suponiendo que sea cierto que para todo a^0 = 1, k captura el valor y devuelve lo que capture k (que supongo por el tipo, r :: Int y así k :: Int -> Int)
@@ -52,7 +52,10 @@ reversaCola lista   = reversaCola' lista []
 
 reversaCPS :: [a] -> ([a] -> r) -> r
 reversaCPS [] k     = k []
-reversaCPS (x:xs) k = reversaCPS xs (\v -> k (x : v))
+reversaCPS lista k  = reversaCPS' lista [] k
+    where
+        reversaCPS' [] acc k        = k acc
+        reversaCPS' (x:xs) acc k    = reversaCPS' xs (x : acc) k
 
 -- 4. Concatenacion de una lista de listas ---------------------------------
 
@@ -84,8 +87,7 @@ la solución la dió mi compañera estefany usando (++), y supongo es el unico r
 intercala :: [a] -> [a] -> [a]
 intercala [] ys = ys
 intercala xs [] = xs
-intercala (x : xs) (y : ys) =
-    x : y : intercala xs ys
+intercala (x : xs) (y : ys) = x : y : intercala xs ys
 
 intercalaColaExtra :: [a] -> [a] -> [a] -> [a]
 intercalaColaExtra [] y lista           = lista ++ y
@@ -94,10 +96,8 @@ intercalaColaExtra (x:xs) (y:ys) lista  =
     intercalaColaExtra xs ys (lista ++ [x, y])
 
 intercalaCola :: [a] -> [a] -> [a]
-intercalaCola [] [] = intercalaColaExtra [] [] [] -- el acumulador es la lista vacía numero 3
-intercalaCola [] (y:ys)     = intercalaColaExtra [] (y:ys) []
-intercalaCola (x:xs) []     = intercalaColaExtra (x:xs) [] []
-intercalaCola (x:xs) (y:ys) = intercalaColaExtra (x:xs) (y:ys) []
+intercalaCola [] []         = intercalaColaExtra [] [] [] -- el acumulador es la lista vacía numero 3
+intercalaCola lista0 lista1 = intercalaColaExtra lista0 lista1 []
 
 intercalaCPS :: [a] -> [a] -> ([a] -> r) -> r
 intercalaCPS [] [] k = k []
