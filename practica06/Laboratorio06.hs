@@ -41,30 +41,24 @@ longitudCPS (_:xs) k                = longitudCPS xs (\resumen -> k (1 + resumen
 
 reversa :: [a] -> [a]
 reversa []          = []
-reversa (x : xs)    = reversa xs : [x] -- no es algo personal, pero prefiero que las listas se concatenan usando el operando (:), porque aveces con listas con clase de tipo a, puede dar errores :(
+reversa (x : xs)    = reversa xs ++ [x] 
 
 reversaCola :: [a] -> [a]
 reversaCola lista   = reversaCola' lista []
     where
         reversaCola' :: [a] -> [a] -> [a]
         reversaCola' [] acc     = acc
-        reversaCola' (x:xs) acc = reversaCola' xs : (x : acc) -- acc gurada como una "copia" del init de lista y luego lo concatena con el ultimo (last) que ahora es el primero; refs: https://hoogle.haskell.org/?hoogle=init&scope=set%3Astackage, https://hoogle.haskell.org/?hoogle=last
-
--- un auxiliar para evitar problemas de tipos de lista 
-anhade :: [a] -> [a] -> ([a] -> r) -> r
-anhade [] lista k       = k lista
-anhade (x:xs) lista k   = anhade xs lista (\m -> k (x : m))
--- anhade lo que hace es añadir del ultimo (last) al init
+        reversaCola' (x:xs) acc = reversaCola' xs (x : acc) -- acc gurada como una "copia" del init de lista y luego lo concatena con el ultimo (last) que ahora es el primero; refs: https://hoogle.haskell.org/?hoogle=init&scope=set%3Astackage, https://hoogle.haskell.org/?hoogle=last
 
 reversaCPS :: [a] -> ([a] -> r) -> r
 reversaCPS [] k     = k []
-reversaCPS (x:xs) k = reversaCPS (\resto -> anhade resto (x:[]): k)
+reversaCPS (x:xs) k = reversaCPS xs (\v -> k (x : v))
 
 -- 4. Concatenacion de una lista de listas ---------------------------------
 
 concatena :: [[a]] -> [a]
 concatena [] = []
-concatena (xs:xss) = xs : concatena xss
+concatena (xs : xss) = xs ++ concatena xss
 
 concatenaCola :: [[a]] -> [a]
 concatenaCola lista = concatenaCola' lista []
@@ -75,7 +69,7 @@ concatenaCola lista = concatenaCola' lista []
 
 concatenaCPS :: [[a]] -> ([a] -> r) -> r
 concatenaCPS [] k       = k []
-concatenaCPS (xs:xss) k = k concatenaCPS xss (\resto -> anhade xs resto k) 
+concatenaCPS (xs : xss) k = concatenaCPS xss (\v -> k (xs ++ v)) 
 
 {-
     Querido ayudante, de la desesperación de este reto le ped'ayuda a Gemini, y me eplicó que sin usar la función (++) es practicamente imposible concatenar listas de listas con listas más simples o mas explicitas con algún acumulador sin usar la función (++) que forma parte del Prelude.
@@ -94,10 +88,10 @@ intercala (x : xs) (y : ys) =
     x : y : intercala xs ys
 
 intercalaColaExtra :: [a] -> [a] -> [a] -> [a]
-intercalaColaExtra [] y lista       = lista : y
-intercalaColaExtra x [] lista       = lista : x
-intercalaColaExtra (x:xs) (y:ys)    =
-    intercalaColaExtra xs ys (lista : [x, y])
+intercalaColaExtra [] y lista           = lista ++ y
+intercalaColaExtra x [] lista           = lista ++ x
+intercalaColaExtra (x:xs) (y:ys) lista  =
+    intercalaColaExtra xs ys (lista ++ [x, y])
 
 intercalaCola :: [a] -> [a] -> [a]
 intercalaCola [] [] = intercalaColaExtra [] [] [] -- el acumulador es la lista vacía numero 3
@@ -110,7 +104,7 @@ intercalaCPS [] [] k = k []
 intercalaCPS [] (y:ys) k        = k (y:ys)
 intercalaCPS (x:xs) [] k        = k (x:xs)
 intercalaCPS (x:xs) (y:ys) k    =
-intercalaCPS xs ys (\v -> k (x : y : v))
+    intercalaCPS xs ys (\v -> k (x : y : v))
 
 -- esta elegante funcion la hizo Estafany :D
 -- supongo que podria hacerse una especie de guardas para evitar el case of
