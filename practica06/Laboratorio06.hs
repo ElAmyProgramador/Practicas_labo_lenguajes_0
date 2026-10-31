@@ -71,11 +71,19 @@ concatenaCola lista = concatenaCola' lista []
     where
         concatenaCola' :: [[a]] -> [a] -> [a]
         concatenaCola' [] acc       = acc
-        concatenaCola' (x:xs) acc   = concatenaCola' [x] : (xs : acc)
+        concatenaCola' (x:xs) acc   = concatenaCola' xs (acc ++ x)
 
 concatenaCPS :: [[a]] -> ([a] -> r) -> r
 concatenaCPS [] k       = k []
 concatenaCPS (xs:xss) k = k concatenaCPS xss (\resto -> anhade xs resto k) 
+
+{-
+    Querido ayudante, de la desesperación de este reto le ped'ayuda a Gemini, y me eplicó que sin usar la función (++) es practicamente imposible concatenar listas de listas con listas más simples o mas explicitas con algún acumulador sin usar la función (++) que forma parte del Prelude.
+    (++) :: [a] -> [a] -> [a]
+base Prelude Data.List GHC.Base GHC.List, hedgehog Hedgehog.Internal.Prelude, ghc GHC.Prelude.Basic, base-compat Prelude.Compat, relude Relude.List.Reexport, protolude Protolude Protolude.Base, rio RIO.List RIO.Prelude, Cabal-syntax Distribution.Compat.Prelude
+ref: https://hoogle.haskell.org/?hoogle=%2B%2B
+la solución la dió mi compañera estefany usando (++), y supongo es el unico reto donde si es estrictamente necesario usar (++) como dice en las nota :/
+-}
 
 -- 5. Intercalado de dos listas --------------------------------------------
 
@@ -85,9 +93,24 @@ intercala xs [] = xs
 intercala (x : xs) (y : ys) =
     x : y : intercala xs ys
 
+intercalaColaExtra :: [a] -> [a] -> [a] -> [a]
+intercalaColaExtra [] y lista       = lista : y
+intercalaColaExtra x [] lista       = lista : x
+intercalaColaExtra (x:xs) (y:ys)    =
+    intercalaColaExtra xs ys (lista : [x, y])
+
 intercalaCola :: [a] -> [a] -> [a]
-intercalaCola = undefined
+intercalaCola [] [] = intercalaColaExtra [] [] [] -- el acumulador es la lista vacía numero 3
+intercalaCola [] (y:ys)     = intercalaColaExtra [] (y:ys) []
+intercalaCola (x:xs) []     = intercalaColaExtra (x:xs) [] []
+intercalaCola (x:xs) (y:ys) = intercalaColaExtra (x:xs) (y:ys) []
 
 intercalaCPS :: [a] -> [a] -> ([a] -> r) -> r
-intercalaCPS = undefined
+intercalaCPS [] [] k = k []
+intercalaCPS [] (y:ys) k        = k (y:ys)
+intercalaCPS (x:xs) [] k        = k (x:xs)
+intercalaCPS (x:xs) (y:ys) k    =
+intercalaCPS xs ys (\v -> k (x : y : v))
 
+-- esta elegante funcion la hizo Estafany :D
+-- supongo que podria hacerse una especie de guardas para evitar el case of
