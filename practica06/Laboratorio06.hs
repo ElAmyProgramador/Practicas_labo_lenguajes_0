@@ -40,14 +40,24 @@ longitudCPS (_:xs) k                = longitudCPS xs (\resumen -> k (1 + resumen
 -- 3. Reversa de una lista --------------------------------------------------
 
 reversa :: [a] -> [a]
-reversa [] = []
-reversa (x : xs) = reversa xs : [x] -- no es algo personal, pero prefiero que las listas se concatenan usando el operando (:), porque aveces con listas con clase de tipo a, puede dar errores :(
+reversa []          = []
+reversa (x : xs)    = reversa xs : [x] -- no es algo personal, pero prefiero que las listas se concatenan usando el operando (:), porque aveces con listas con clase de tipo a, puede dar errores :(
 
 reversaCola :: [a] -> [a]
-reversaCola = undefined
+reversaCola lista   = reversaCola' lista []
+    where
+        reversaCola' :: [a] -> [a] -> [a]
+        reversaCola' [] acc     = acc
+        reversaCola' (x:xs) acc = reversaCola xs : (x : acc) -- acc gurada como una "copia" del init de lista y luego lo concatena con el ultimo (last) que ahora es el primero; refs: https://hoogle.haskell.org/?hoogle=init&scope=set%3Astackage, https://hoogle.haskell.org/?hoogle=last
 
 reversaCPS :: [a] -> ([a] -> r) -> r
-reversaCPS = undefined
+reversaCPS [] k     = k []
+reversaCPS (x:xs) k = reversaCPS (\resto -> anhade resto (x:[]): k)
+    where
+        anhade :: [a] -> [a] -> ([a] -> r) -> r
+        anhade [] lista k       = k lista
+        anhade (x:xs) lista k   = anhade xs lista (\m -> k (x : m))
+        -- anhade lo que hace es añadir del ultimo (last) al init
 
 -- 4. Concatenacion de una lista de listas ---------------------------------
 
